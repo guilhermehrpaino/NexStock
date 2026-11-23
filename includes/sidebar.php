@@ -10,9 +10,8 @@
 // Garante que $activePage existe e evita notice
 $activePage = $activePage ?? '';
 
-// Pega o nome do usuário da sessão (você preencherá via PHP)
-$userName  = $_SESSION['usuario_nome']  ?? 'Usuário';
-$userRole  = $_SESSION['usuario_cargo'] ?? 'Administrador';
+$userName = $_SESSION['usuario_nome'] ?? $_SESSION['nomeUsuario'] ?? 'Usuário';
+$userRole = $_SESSION['usuario_cargo'] ?? 'Usuário';
 
 // Gera as iniciais do avatar a partir do nome
 $initials = '';
@@ -102,7 +101,6 @@ $prefix = (strpos($_SERVER['PHP_SELF'], '/pages/') !== false) ? '../' : '';
 
   </nav>
 
-  <!-- Rodapé com usuário e logout -->
   <div class="sidebar-footer">
     <div class="sidebar-user">
       <div class="user-avatar"><?= htmlspecialchars($initials) ?></div>

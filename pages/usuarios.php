@@ -43,11 +43,7 @@ $activePage = 'usuarios';
 
     <main class="page-content">
       <div style="max-width:900px; margin:0 auto;">
-        <div class="alert alert-info" role="note">
-          <?= nexstock_icon('info') ?>
-          <div>Somente administradores podem cadastrar usuários. As senhas são armazenadas com hash.</div>
-        </div>
-
+        
         <?php if (isset($mensagens[$status])): ?>
           <div class="alert <?= $status === 'sucesso' ? 'alert-success' : 'alert-danger' ?>" role="status">
             <?= nexstock_icon($status === 'sucesso' ? 'check' : 'alert') ?>

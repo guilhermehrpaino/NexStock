@@ -19,6 +19,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             if(password_verify($senha, $dados["senha"])) {
                 session_start();
                 $_SESSION["nomeUsuario"] = $dados["usuario"];
+                $_SESSION["usuario_nome"] = $dados["nome"];
+                $_SESSION["usuario_cargo"] = $dados["cargo"];
                 $_SESSION["tempoSessao"] = time() + 60;
 
                 header("location: ../pages/dashboard.php");
