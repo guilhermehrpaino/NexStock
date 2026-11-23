@@ -1,31 +1,23 @@
 <?php
-/**
- * movimentacoes.php — Registro de Entrada e Saída de Estoque
- *
- * BACKEND:
- * session_start();
- * if (!isset($_SESSION['usuario_id'])) { header('Location: ../login.php'); exit; }
- *
- * // Buscar produtos ativos para o select:
- * $produtos = $pdo->query("SELECT id, nome, quantidade FROM produtos WHERE ativo = 1 ORDER BY nome")->fetchAll(PDO::FETCH_ASSOC);
- *
- * // Lógica de registro de movimentação (POST):
- * if ($_SERVER['REQUEST_METHOD'] === 'POST') {
- *   // Valide: produto_id, tipo (entrada/saida), quantidade > 0
- *   // Para saída: verifique se quantidade <= estoque atual
- *   // UPDATE produtos SET quantidade = quantidade +/- ? WHERE id = ?
- *   // INSERT INTO movimentacoes (produto_id, tipo, quantidade, observacao, usuario_id, data_hora)
- *   //   VALUES (?, ?, ?, ?, ?, NOW())
- * }
- */
+require_once("../php/_sessao.php");
+require_once("../php/conexao.php");
+require_once '../php/listarProdutosMovimentacao.php';
 
-// Pré-seleciona o tipo se vier via GET (?tipo=entrada ou ?tipo=saida)
-$tipoInformado = $_POST['tipo'] ?? $_GET['tipo'] ?? '';
+$status = isset($_GET['status']) && is_string($_GET['status']) ? $_GET['status'] : '';
+$mensagens = [
+  'sucesso' => 'Movimentação registrada com sucesso.',
+  'invalido' => 'Confira os dados da movimentação e tente novamente.',
+  'estoque-insuficiente' => 'A quantidade de saída não pode ser maior que o estoque atual.',
+  'produto-invalido' => 'O produto selecionado não está disponível.',
+  'usuario-invalido' => 'Não foi possível identificar seu usuário. Faça login novamente.',
+  'erro' => 'Não foi possível registrar a movimentação.',
+];
+
+$tipoInformado = $_GET['tipo'] ?? '';
 $tipoPreSelecionado = in_array($tipoInformado, ['entrada', 'saida'], true)
   ? $tipoInformado
   : 'entrada';
 
-$produtos   = [];   // substitua pela query acima
 $activePage = 'movimentacoes';
 ?>
 <!DOCTYPE html>
@@ -60,7 +52,22 @@ $activePage = 'movimentacoes';
 
     <main class="page-content">
 
-      <?php /* Alertas de sucesso/erro — preencha com PHP */ ?>
+      <?php if (isset($mensagens[$status])): ?>
+        <div class="alert <?= $status === 'sucesso' ? 'alert-success' : 'alert-danger' ?>" role="status">
+          <?= nexstock_icon($status === 'sucesso' ? 'check' : 'alert') ?>
+          <div><?= htmlspecialchars($mensagens[$status], ENT_QUOTES, 'UTF-8') ?></div>
+        </div>
+      <?php endif; ?>
+
+      <?php if (empty($produtos)): ?>
+        <div class="alert alert-warning" role="status">
+          <?= nexstock_icon('alert') ?>
+          <div>
+            Cadastre um produto antes de registrar uma movimentação.
+            <a href="produtos.php">Cadastrar produto</a>
+          </div>
+        </div>
+      <?php endif; ?>
 
       <div style="display:grid; grid-template-columns:1fr 380px; gap:24px; align-items:start;">
 
@@ -71,15 +78,7 @@ $activePage = 'movimentacoes';
           </div>
           <div class="card-body">
 
-            <!--
-              O PHP processa o POST deste formulário.
-              Regras obrigatórias no backend:
-              - tipo é obrigatório (entrada ou saida)
-              - quantidade deve ser inteiro positivo
-              - para saída: quantidade <= produto.quantidade atual
-              - registrar em movimentacoes e atualizar produtos.quantidade
-            -->
-            <form method="POST" action="movimentacoes.php">
+            <form method="POST" action="../php/registrarMovimentacao.php">
 
               <!-- Tipo de movimentação -->
               <div class="form-group">
@@ -153,7 +152,7 @@ $activePage = 'movimentacoes';
 
               <div class="divider"></div>
 
-              <button type="submit" class="btn btn-primary" style="width:100%;">
+              <button type="submit" class="btn btn-primary" style="width:100%;" <?= empty($produtos) ? 'disabled' : '' ?>>
                 <?= nexstock_icon('check') ?> Registrar Movimentação
               </button>
 

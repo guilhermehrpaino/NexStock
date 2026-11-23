@@ -1,69 +1,7 @@
 <?php
-/**
- * historico.php — Histórico de Movimentações
- *
- * BACKEND:
- * session_start();
- * if (!isset($_SESSION['usuario_id'])) { header('Location: ../login.php'); exit; }
- *
- * // Buscar histórico com join de produto e usuário:
- * $stmt = $pdo->query("
- *     SELECT
- *         m.id,
- *         m.tipo,
- *         m.quantidade,
- *         m.observacao,
- *         m.data_hora,
- *         p.nome  AS produto_nome,
- *         p.codigo AS produto_codigo,
- *         u.nome  AS usuario_nome
- *     FROM movimentacoes m
- *     JOIN produtos  p ON m.produto_id  = p.id
- *     JOIN usuarios  u ON m.usuario_id  = u.id
- *     ORDER BY m.data_hora DESC
- *     LIMIT 100
- * ");
- * $movimentacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
- *
- * // Totais para os cards:
- * $totalEntradas = $pdo->query("SELECT COALESCE(SUM(quantidade),0) FROM movimentacoes WHERE tipo='entrada'")->fetchColumn();
- * $totalSaidas   = $pdo->query("SELECT COALESCE(SUM(quantidade),0) FROM movimentacoes WHERE tipo='saida'")->fetchColumn();
- * $totalMovs     = $pdo->query("SELECT COUNT(*) FROM movimentacoes")->fetchColumn();
- */
-
-$movimentacoes = [];
-$totalEntradas = 0;
-$totalSaidas   = 0;
-$totalMovs     = 0;
-$busca = isset($_GET['busca']) && is_string($_GET['busca'])
-  ? trim($_GET['busca'])
-  : '';
-$tipoFiltro = in_array($_GET['tipo'] ?? '', ['entrada', 'saida'], true)
-  ? $_GET['tipo']
-  : '';
-$dataInicioInformada = $_GET['de'] ?? '';
-$dataFimInformada = $_GET['ate'] ?? '';
-$dataInicio = is_string($dataInicioInformada)
-  && preg_match('/^\d{4}-\d{2}-\d{2}$/', $dataInicioInformada)
-  ? $_GET['de']
-  : '';
-$dataFim = is_string($dataFimInformada)
-  && preg_match('/^\d{4}-\d{2}-\d{2}$/', $dataFimInformada)
-  ? $_GET['ate']
-  : '';
-
-$movimentacoes = array_values(array_filter($movimentacoes, function ($movimentacao) use ($busca, $tipoFiltro, $dataInicio, $dataFim) {
-  $correspondeBusca = $busca === '' || stripos(
-    ($movimentacao['produto_nome'] ?? '') . ' ' . ($movimentacao['produto_codigo'] ?? ''),
-    $busca
-  ) !== false;
-  $correspondeTipo = $tipoFiltro === '' || ($movimentacao['tipo'] ?? '') === $tipoFiltro;
-  $dataMovimentacao = substr((string)($movimentacao['data_hora'] ?? ''), 0, 10);
-  $correspondeInicio = $dataInicio === '' || $dataMovimentacao >= $dataInicio;
-  $correspondeFim = $dataFim === '' || $dataMovimentacao <= $dataFim;
-
-  return $correspondeBusca && $correspondeTipo && $correspondeInicio && $correspondeFim;
-}));
+require_once("../php/_sessao.php");
+require_once("../php/conexao.php");
+require_once '../php/listarHistorico.php';
 
 $activePage = 'historico';
 ?>

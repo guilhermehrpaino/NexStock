@@ -1,35 +1,8 @@
 <?php
-/**
- * dashboard.php — Painel principal do sistema
- *
- * BACKEND: Antes de incluir a sidebar, inicie a sessão e proteja a página:
- *
- * session_start();
- * if (!isset($_SESSION['usuario_id'])) {
- *     header('Location: ../login.php');
- *     exit;
- * }
- *
- * Depois, busque os dados do banco com PDO e preencha as variáveis:
- * $totalProdutos, $produtosEstoqueBaixo, $totalMovimentacoes, $movimentacoesHoje
- * e o array $produtosBaixoEstoque para a tabela de alertas.
- */
+require_once("../php/_sessao.php");
+require_once("../php/conexao.php");
+require_once '../php/listarDashboard.php';
 
-// ── Dados de exemplo (substitua pelas suas queries PHP) ───
-$totalProdutos        = 0;
-$produtosEstoqueBaixo = 0;
-$totalMovimentacoes   = 0;
-$movimentacoesHoje    = 0;
-
-// Exemplo de produtos com estoque baixo para a tabela de alertas
-// Substitua por: $produtosBaixoEstoque = $pdo->query("SELECT ...")->fetchAll(PDO::FETCH_ASSOC);
-$produtosBaixoEstoque = [];
-
-// Exemplo de movimentações recentes
-// Substitua por: $movimentacoesRecentes = $pdo->query("SELECT ...")->fetchAll(PDO::FETCH_ASSOC);
-$movimentacoesRecentes = [];
-
-// Define a página ativa para a sidebar
 $activePage = 'dashboard';
 ?>
 <!DOCTYPE html>
@@ -122,7 +95,7 @@ $activePage = 'dashboard';
           <div class="card-header">
             <div>
               <div class="card-title"><?= nexstock_icon('alert') ?> Alertas de Estoque</div>
-              <div class="card-subtitle">Produtos abaixo do mínimo definido</div>
+              <div class="card-subtitle">Produtos no mínimo ou abaixo do mínimo definido</div>
             </div>
             <a href="produtos.php" class="btn btn-sm btn-outline-primary">Ver todos</a>
           </div>
