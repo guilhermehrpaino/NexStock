@@ -1,42 +1,17 @@
 <?php
-/**
- * categorias.php — Gestão de Categorias
- *
- * BACKEND:
- * session_start();
- * if (!isset($_SESSION['usuario_id'])) { header('Location: ../login.php'); exit; }
- *
- * // Buscar categorias com contagem de produtos:
- * $stmt = $pdo->query("
- *     SELECT c.*, COUNT(p.id) AS total_produtos
- *     FROM categorias c
- *     LEFT JOIN produtos p ON p.categoria_id = c.id
- *     GROUP BY c.id
- *     ORDER BY c.nome ASC
- * ");
- * $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
- */
+require_once("../php/_sessao.php");
+require_once("../php/conexao.php");
+require_once '../php/listarCategorias.php';
 
-$categorias = [];   // substitua pela query acima
-$totalCategorias = count($categorias);
-$categoriaEdicao = null;
-$idEdicao = filter_input(INPUT_GET, 'editar', FILTER_VALIDATE_INT);
-$busca = isset($_GET['busca']) && is_string($_GET['busca'])
-  ? trim($_GET['busca'])
-  : '';
 
-foreach ($categorias as $categoria) {
-  if ($idEdicao && (int)$categoria['id'] === $idEdicao) {
-    $categoriaEdicao = $categoria;
-    break;
-  }
-}
-
-if ($busca !== '') {
-  $categorias = array_values(array_filter($categorias, function ($categoria) use ($busca) {
-    return stripos($categoria['nome'] . ' ' . ($categoria['descricao'] ?? ''), $busca) !== false;
-  }));
-}
+$status = isset($_GET['status']) && is_string($_GET['status']) ? $_GET['status'] : '';
+$mensagens = [
+  'sucesso' => 'Categoria salva com sucesso.',
+  'excluida' => 'Categoria excluída com sucesso.',
+  'invalida' => 'Informe um nome válido para a categoria.',
+  'em-uso' => 'Não é possível excluir uma categoria que possui produtos.',
+  'erro' => 'Não foi possível concluir a operação.',
+];
 
 $activePage = 'categorias';
 ?>
@@ -77,7 +52,12 @@ $activePage = 'categorias';
 
     <main class="page-content">
 
-      <?php /* Alertas de sucesso/erro — preencha com PHP */ ?>
+      <?php if (isset($mensagens[$status])): ?>
+        <div class="alert <?= in_array($status, ['sucesso', 'excluida'], true) ? 'alert-success' : 'alert-danger' ?>" role="status">
+          <?= nexstock_icon(in_array($status, ['sucesso', 'excluida'], true) ? 'check' : 'alert') ?>
+          <div><?= htmlspecialchars($mensagens[$status], ENT_QUOTES, 'UTF-8') ?></div>
+        </div>
+      <?php endif; ?>
 
       <!-- Layout em 2 colunas: tabela + painel lateral -->
       <div style="display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start;">
@@ -140,10 +120,9 @@ $activePage = 'categorias';
 
                           <details class="delete-confirm">
                             <summary class="btn btn-sm btn-danger" title="Excluir"><?= nexstock_icon('trash') ?></summary>
-                            <form method="POST" action="categorias.php">
-                              <input type="hidden" name="action" value="excluir">
+                            <form method="POST" action="../php/excluirCategoria.php">
                               <input type="hidden" name="id" value="<?= (int)$cat['id'] ?>">
-                              <p>Excluir esta categoria? Os produtos associados ficarão sem categoria.</p>
+                              <p>Excluir esta categoria? Ela só pode ser excluída se não houver produtos associados.</p>
                               <button type="submit" class="btn btn-sm btn-danger">Confirmar exclusão</button>
                             </form>
                           </details>
@@ -196,9 +175,10 @@ $activePage = 'categorias';
       <a class="modal-close" href="categorias.php" aria-label="Fechar"><?= nexstock_icon('close') ?></a>
     </div>
 
-    <form method="POST" action="categorias.php">
-      <input type="hidden" name="action" value="<?= $categoriaEdicao ? 'editar' : 'criar' ?>">
-      <input type="hidden" name="id" value="<?= (int)($categoriaEdicao['id'] ?? 0) ?>">
+    <form method="POST" action="<?= $categoriaEdicao ? '../php/editarCategoria.php' : '../php/cadastrarCategoria.php' ?>">
+      <?php if ($categoriaEdicao): ?>
+        <input type="hidden" name="id" value="<?= (int)$categoriaEdicao['id'] ?>">
+      <?php endif; ?>
 
       <div class="modal-body">
 
@@ -208,6 +188,7 @@ $activePage = 'categorias';
           </label>
           <input type="text" id="catNome" name="nome" class="form-control"
                  placeholder="Ex.: Alimentos, Eletrônicos..."
+                 maxlength="120"
                  value="<?= htmlspecialchars($categoriaEdicao['nome'] ?? '') ?>" required>
         </div>
 

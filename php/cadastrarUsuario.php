@@ -4,7 +4,7 @@ if($_SERVER["REQUEST_METHOD"] != "POST") {
     exit();
 }
 
-require_once __DIR__ . '/_sessao.php';
+require_once("./_sessao.php");
 
 $nome = filter_input(INPUT_POST, "nome", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $usuario = filter_input(INPUT_POST, "usuario", FILTER_SANITIZE_FULL_SPECIAL_CHARS);

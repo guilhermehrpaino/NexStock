@@ -1,67 +1,17 @@
 <?php
-/**
- * produtos.php — Gestão de Produtos
- *
- * BACKEND: Proteja a página e busque os dados:
- *
- * session_start();
- * if (!isset($_SESSION['usuario_id'])) {
- *     header('Location: ../login.php');
- *     exit;
- * }
- *
- * // Buscar produtos com join de categoria:
- * $stmt = $pdo->query("
- *     SELECT p.*, c.nome AS categoria_nome
- *     FROM produtos p
- *     LEFT JOIN categorias c ON p.categoria_id = c.id
- *     ORDER BY p.nome ASC
- * ");
- * $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
- *
- * // Buscar categorias para o select do formulário:
- * $categorias = $pdo->query("SELECT * FROM categorias ORDER BY nome")->fetchAll(PDO::FETCH_ASSOC);
- */
+require_once("../php/_sessao.php");
+require_once("../php/conexao.php");
+require_once '../php/listarProdutos.php';
 
-// ── Dados de exemplo (substitua pelas suas queries) ───────
-$produtos   = [];   // array de produtos do banco
-$categorias = [];   // array de categorias do banco
-$produtoEdicao = null;
-$idEdicao = filter_input(INPUT_GET, 'editar', FILTER_VALIDATE_INT);
-$busca = isset($_GET['busca']) && is_string($_GET['busca'])
-  ? trim($_GET['busca'])
-  : '';
-$categoriaFiltro = isset($_GET['categoria']) && is_scalar($_GET['categoria'])
-  ? (string)$_GET['categoria']
-  : '';
-$estoqueInformado = $_GET['estoque'] ?? '';
-$estoqueFiltro = in_array($estoqueInformado, ['normal', 'baixo', 'zero'], true)
-  ? $estoqueInformado
-  : '';
 
-foreach ($produtos as $produto) {
-  if ($idEdicao && (int)$produto['id'] === $idEdicao) {
-    $produtoEdicao = $produto;
-    break;
-  }
-}
-
-$produtos = array_values(array_filter($produtos, function ($produto) use ($busca, $categoriaFiltro, $estoqueFiltro) {
-  $correspondeBusca = $busca === '' || stripos(
-    ($produto['nome'] ?? '') . ' ' . ($produto['codigo'] ?? ''),
-    $busca
-  ) !== false;
-  $correspondeCategoria = $categoriaFiltro === ''
-    || (string)($produto['categoria_id'] ?? '') === $categoriaFiltro;
-  $quantidade = (int)($produto['quantidade'] ?? 0);
-  $minimo = (int)($produto['estoque_minimo'] ?? 0);
-  $correspondeEstoque = $estoqueFiltro === ''
-    || ($estoqueFiltro === 'zero' && $quantidade === 0)
-    || ($estoqueFiltro === 'baixo' && $quantidade > 0 && $quantidade <= $minimo)
-    || ($estoqueFiltro === 'normal' && $quantidade > $minimo);
-
-  return $correspondeBusca && $correspondeCategoria && $correspondeEstoque;
-}));
+$status = isset($_GET['status']) && is_string($_GET['status']) ? $_GET['status'] : '';
+$mensagens = [
+  'sucesso' => 'Produto salvo com sucesso.',
+  'excluido' => 'Produto excluído com sucesso.',
+  'invalido' => 'Confira os dados do produto e tente novamente.',
+  'sku-duplicado' => 'Este código SKU já está cadastrado.',
+  'erro' => 'Não foi possível concluir a operação.',
+];
 
 $activePage = 'produtos';
 ?>
@@ -103,19 +53,22 @@ $activePage = 'produtos';
 
     <main class="page-content">
 
-      <!-- ── Feedback de operação (PHP preenche) ─────────── -->
-      <?php
-      /*
-       * Exiba alertas conforme o resultado da operação do seu PHP:
-       *
-       * if (!empty($sucesso)) {
-       *   echo '<div class="alert alert-success"><span class="alert-icon"><span data-icon="check"></span></span><span>' . htmlspecialchars($sucesso) . '</span></div>';
-       * }
-       * if (!empty($erro)) {
-       *   echo '<div class="alert alert-danger"><span class="alert-icon"><span data-icon="x-circle"></span></span><span>' . htmlspecialchars($erro) . '</span></div>';
-       * }
-       */
-      ?>
+      <?php if (isset($mensagens[$status])): ?>
+        <div class="alert <?= in_array($status, ['sucesso', 'excluido'], true) ? 'alert-success' : 'alert-danger' ?>" role="status">
+          <?= nexstock_icon(in_array($status, ['sucesso', 'excluido'], true) ? 'check' : 'alert') ?>
+          <div><?= htmlspecialchars($mensagens[$status], ENT_QUOTES, 'UTF-8') ?></div>
+        </div>
+      <?php endif; ?>
+
+      <?php if (empty($categorias)): ?>
+        <div class="alert alert-warning" role="status">
+          <?= nexstock_icon('alert') ?>
+          <div>
+            Cadastre uma categoria antes de criar um produto.
+            <a href="categorias.php?novo=1#modalCategoria">Cadastrar categoria</a>
+          </div>
+        </div>
+      <?php endif; ?>
 
       <!-- ── Filtros e busca ─────────────────────────────── -->
       <div class="card mb-16">
@@ -251,11 +204,10 @@ $activePage = 'produtos';
 
                         <details class="delete-confirm">
                           <summary class="btn btn-sm btn-danger" title="Excluir"><?= nexstock_icon('trash') ?></summary>
-                          <form method="POST" action="produtos.php">
-                            <input type="hidden" name="action" value="excluir">
+                          <form method="POST" action="../php/excluirProduto.php">
                             <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
-                            <p>Confirma a exclusão deste produto?</p>
-                            <button type="submit" class="btn btn-sm btn-danger">Confirmar exclusão</button>
+                            <p>Desativar este produto? Ele continuará no histórico.</p>
+                            <button type="submit" class="btn btn-sm btn-danger">Confirmar desativação</button>
                           </form>
                         </details>
                       </div>
@@ -268,26 +220,17 @@ $activePage = 'produtos';
           </table>
         </div>
 
-        <!-- Paginação — implemente com PHP -->
-        <div class="card-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="card-footer">
           <span class="text-muted fs-sm">
             Mostrando <?= count($produtos) ?> produto(s)
           </span>
-          <div class="pagination" id="paginacao">
-            <!-- PHP gera os links de paginação aqui -->
-          </div>
         </div>
       </div>
 
     </main>
-  </div><!-- /.main-content -->
-</div><!-- /.app-wrapper -->
+  </div>
+</div>
 
-<!-- ═══════════════════════════════════════════════════════
-     Modal — Novo / Editar Produto
-     O mesmo modal serve para cadastro e edição.
-     O PHP carrega os dados do produto selecionado via GET.
-     ═══════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalProduto" role="dialog" aria-modal="true">
   <a class="modal-backdrop" href="produtos.php" aria-label="Fechar"></a>
   <div class="modal">
@@ -297,14 +240,10 @@ $activePage = 'produtos';
       <a class="modal-close" href="produtos.php" aria-label="Fechar"><?= nexstock_icon('close') ?></a>
     </div>
 
-    <!--
-      ACTION: aponta para produtos.php — você trata o POST no backend.
-      O campo hidden "action" indica se é "criar" ou "editar".
-      Os valores de edição são renderizados pelo PHP.
-    -->
-    <form method="POST" action="produtos.php">
-      <input type="hidden" name="action" value="<?= $produtoEdicao ? 'editar' : 'criar' ?>">
-      <input type="hidden" name="id" value="<?= (int)($produtoEdicao['id'] ?? 0) ?>">
+    <form method="POST" action="<?= $produtoEdicao ? '../php/editarProduto.php' : '../php/cadastrarProduto.php' ?>">
+      <?php if ($produtoEdicao): ?>
+        <input type="hidden" name="id" value="<?= (int)$produtoEdicao['id'] ?>">
+      <?php endif; ?>
 
       <div class="modal-body">
 
@@ -314,13 +253,15 @@ $activePage = 'produtos';
               Nome do Produto <span class="required">*</span>
             </label>
             <input type="text" id="nome" name="nome" class="form-control"
-                   placeholder="Ex.: Arroz 5kg" value="<?= htmlspecialchars($produtoEdicao['nome'] ?? '') ?>" required>
+                   placeholder="Ex.: Arroz 5kg" maxlength="180"
+                   value="<?= htmlspecialchars($produtoEdicao['nome'] ?? '') ?>" required>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="codigo">Código (SKU)</label>
             <input type="text" id="codigo" name="codigo" class="form-control"
-                   placeholder="Ex.: ARR001" value="<?= htmlspecialchars($produtoEdicao['codigo'] ?? '') ?>">
+                   placeholder="Ex.: ARR001" maxlength="80"
+                   value="<?= htmlspecialchars($produtoEdicao['codigo'] ?? '') ?>">
           </div>
         </div>
 
