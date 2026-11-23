@@ -89,6 +89,17 @@ $prefix = (strpos($_SERVER['PHP_SELF'], '/pages/') !== false) ? '../' : '';
       </a>
     </div>
 
+    <div class="sidebar-section">
+      <p class="sidebar-section-label">Administração</p>
+
+      <a href="<?= $prefix ?>pages/usuarios.php"
+         class="nav-item <?= $activePage === 'usuarios' ? 'active' : '' ?>"
+         data-page="usuarios">
+        <span class="nav-icon"><?= nexstock_icon('users') ?></span>
+        Usuários
+      </a>
+    </div>
+
   </nav>
 
   <!-- Rodapé com usuário e logout -->

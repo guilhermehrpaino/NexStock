@@ -1,11 +1,14 @@
 <?php
-if(!isset($_SESSION)){
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-if(!isset($_SESSION["nomeUsuario"]) || (time() > $_SESSION["tempoSessao"])){
-
-    header("location:./index.php");
+if (
+    empty($_SESSION["nomeUsuario"])
+    || !isset($_SESSION["tempoSessao"])
+    || (int) $_SESSION["tempoSessao"] <= time()
+) {
+    header("Location: ../login.php");
     exit();
 }
 

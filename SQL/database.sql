@@ -4,7 +4,7 @@ CREATE DATABASE IF NOT EXISTS nexstock
 
 USE nexstock;
 
-CREATE TABLE IF NOT EXISTS usuarios (
+CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   nome VARCHAR(120) NOT NULL,
   usuario VARCHAR(80) NOT NULL,
@@ -14,14 +14,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
   criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uq_usuarios_usuario (usuario)
+  UNIQUE KEY uq_users_usuario (usuario)
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
 
-CREATE OR REPLACE VIEW users AS
-  SELECT id, usuario, senha
-  FROM usuarios;
+CREATE OR REPLACE VIEW usuarios AS
+  SELECT id, nome
+  FROM users;
 
 CREATE TABLE IF NOT EXISTS categorias (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS movimentacoes (
     ON UPDATE CASCADE
     ON DELETE RESTRICT,
   CONSTRAINT fk_movimentacoes_usuario
-    FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+    FOREIGN KEY (usuario_id) REFERENCES users (id)
     ON UPDATE CASCADE
     ON DELETE RESTRICT
 ) ENGINE=InnoDB
