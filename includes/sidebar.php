@@ -21,8 +21,8 @@ foreach (explode(' ', $userName) as $word) {
 }
 
 // Define o prefixo de caminho relativo conforme a localização do arquivo chamador
-// Páginas em /pages/ precisam de '../', na raiz não precisam
-$prefix = (strpos($_SERVER['PHP_SELF'], '/pages/') !== false) ? '../' : '';
+// Páginas em /paginas/ precisam de '../', na raiz não precisam
+$prefix = (strpos($_SERVER['PHP_SELF'], '/paginas/') !== false) ? '../' : '';
 ?>
 <?php include_once __DIR__ . '/icons.php'; ?>
 
@@ -48,7 +48,7 @@ $prefix = (strpos($_SERVER['PHP_SELF'], '/pages/') !== false) ? '../' : '';
     <div class="sidebar-section">
       <p class="sidebar-section-label">Principal</p>
 
-      <a href="<?= $prefix ?>pages/dashboard.php"
+      <a href="<?= $prefix ?>paginas/dashboard.php"
          class="nav-item <?= $activePage === 'dashboard' ? 'active' : '' ?>"
          data-page="dashboard">
         <span class="nav-icon"><?= nexstock_icon('home') ?></span>
@@ -59,28 +59,28 @@ $prefix = (strpos($_SERVER['PHP_SELF'], '/pages/') !== false) ? '../' : '';
     <div class="sidebar-section">
       <p class="sidebar-section-label">Estoque</p>
 
-      <a href="<?= $prefix ?>pages/produtos.php"
+      <a href="<?= $prefix ?>paginas/produtos.php"
          class="nav-item <?= $activePage === 'produtos' ? 'active' : '' ?>"
          data-page="produtos">
         <span class="nav-icon"><?= nexstock_icon('products') ?></span>
         Produtos
       </a>
 
-      <a href="<?= $prefix ?>pages/categorias.php"
+      <a href="<?= $prefix ?>paginas/categorias.php"
          class="nav-item <?= $activePage === 'categorias' ? 'active' : '' ?>"
          data-page="categorias">
         <span class="nav-icon"><?= nexstock_icon('category') ?></span>
         Categorias
       </a>
 
-      <a href="<?= $prefix ?>pages/movimentacoes.php"
+      <a href="<?= $prefix ?>paginas/movimentacoes.php"
          class="nav-item <?= $activePage === 'movimentacoes' ? 'active' : '' ?>"
          data-page="movimentacoes">
         <span class="nav-icon"><?= nexstock_icon('movement') ?></span>
         Movimentações
       </a>
 
-      <a href="<?= $prefix ?>pages/historico.php"
+      <a href="<?= $prefix ?>paginas/historico.php"
          class="nav-item <?= $activePage === 'historico' ? 'active' : '' ?>"
          data-page="historico">
         <span class="nav-icon"><?= nexstock_icon('history') ?></span>
@@ -91,7 +91,7 @@ $prefix = (strpos($_SERVER['PHP_SELF'], '/pages/') !== false) ? '../' : '';
     <div class="sidebar-section">
       <p class="sidebar-section-label">Administração</p>
 
-      <a href="<?= $prefix ?>pages/usuarios.php"
+      <a href="<?= $prefix ?>paginas/usuarios.php"
          class="nav-item <?= $activePage === 'usuarios' ? 'active' : '' ?>"
          data-page="usuarios">
         <span class="nav-icon"><?= nexstock_icon('users') ?></span>

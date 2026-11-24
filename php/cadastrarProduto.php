@@ -1,6 +1,6 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
-    header("location: ../pages/produtos.php");
+    header("location: ../paginas/produtos.php");
     exit();
 }
 
@@ -22,11 +22,6 @@ try {
     );
     $verificaCategoria->execute([":id" => $categoriaId]);
 
-    if (!$verificaCategoria->fetch()) {
-        header("location: ../pages/produtos.php?status=invalido");
-        exit();
-    }
-
     $comandoSQL = $conexao->prepare(
         "INSERT INTO produtos
             (nome, codigo, categoria_id, preco, quantidade, estoque_minimo, descricao, ativo)
@@ -42,14 +37,14 @@ try {
         ":descricao" => $descricao,
     ]);
 
-    header("location: ../pages/produtos.php?status=sucesso");
+    header("location: ../paginas/produtos.php?status=sucesso");
     exit();
 } catch (PDOException $erro) {
     if (($erro->errorInfo[1] ?? null) == 1062) {
-        header("location: ../pages/produtos.php?status=sku-duplicado");
+        header("location: ../paginas/produtos.php?status=sku-duplicado");
         exit();
     }
 
-    header("location: ../pages/produtos.php?status=erro");
+    header("location: ../paginas/produtos.php?status=erro");
     exit();
 }

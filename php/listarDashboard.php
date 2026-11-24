@@ -11,7 +11,7 @@ $comandoProdutos = $conexao->query(
      FROM produtos
      WHERE ativo = 1"
 );
-$totaisProdutos = $comandoProdutos->fetch(PDO::FETCH_ASSOC);
+$totaisProdutos = $comandoProdutos->fetch();
 $totalProdutos = (int) $totaisProdutos["total_produtos"];
 $produtosEstoqueBaixo = (int) $totaisProdutos["produtos_estoque_baixo"];
 
@@ -21,7 +21,7 @@ $comandoMovimentacoes = $conexao->query(
         COALESCE(SUM(CASE WHEN DATE(data_hora) = CURDATE() THEN 1 ELSE 0 END), 0) AS movimentacoes_hoje
      FROM movimentacoes"
 );
-$totaisMovimentacoes = $comandoMovimentacoes->fetch(PDO::FETCH_ASSOC);
+$totaisMovimentacoes = $comandoMovimentacoes->fetch();
 $totalMovimentacoes = (int) $totaisMovimentacoes["total_movimentacoes"];
 $movimentacoesHoje = (int) $totaisMovimentacoes["movimentacoes_hoje"];
 
@@ -39,7 +39,7 @@ $comandoEstoqueBaixo = $conexao->query(
      ORDER BY p.quantidade ASC, p.nome ASC
      LIMIT 5"
 );
-$produtosBaixoEstoque = $comandoEstoqueBaixo->fetchAll(PDO::FETCH_ASSOC);
+$produtosBaixoEstoque = $comandoEstoqueBaixo->fetchAll();
 
 $comandoRecentes = $conexao->query(
     "SELECT
@@ -52,4 +52,4 @@ $comandoRecentes = $conexao->query(
      ORDER BY m.data_hora DESC, m.id DESC
      LIMIT 5"
 );
-$movimentacoesRecentes = $comandoRecentes->fetchAll(PDO::FETCH_ASSOC);
+$movimentacoesRecentes = $comandoRecentes->fetchAll();

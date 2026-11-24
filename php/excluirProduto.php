@@ -1,17 +1,12 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
-    header("location: ../pages/produtos.php");
+    header("location: ../paginas/produtos.php");
     exit();
 }
 
 require_once("./_sessao.php");
 
 $id = filter_input(INPUT_POST, "id", FILTER_VALIDATE_INT);
-
-if (!$id) {
-    header("location: ../pages/produtos.php?status=invalido");
-    exit();
-}
 
 try {
     require_once("./conexao.php");
@@ -21,9 +16,9 @@ try {
     );
     $comandoSQL->execute([":id" => $id]);
 
-    header("location: ../pages/produtos.php?status=excluido");
+    header("location: ../paginas/produtos.php?status=excluido");
     exit();
 } catch (PDOException $erro) {
-    header("location: ../pages/produtos.php?status=erro");
+    header("location: ../paginas/produtos.php?status=erro");
     exit();
 }

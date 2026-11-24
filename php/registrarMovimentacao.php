@@ -1,6 +1,6 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
-    header("location: ../pages/movimentacoes.php");
+    header("location: ../paginas/movimentacoes.php");
     exit();
 }
 
@@ -21,11 +21,6 @@ try {
     $comandoUsuario->execute([":usuario" => $_SESSION["nomeUsuario"]]);
     $usuarioId = $comandoUsuario->fetchColumn();
 
-    if (!$usuarioId) {
-        header("location: ../pages/movimentacoes.php?status=usuario-invalido");
-        exit();
-    }
-
     $conexao->beginTransaction();
 
     $comandoProduto = $conexao->prepare(
@@ -37,17 +32,11 @@ try {
     $comandoProduto->execute([":id" => $produtoId]);
     $produto = $comandoProduto->fetch();
 
-    if (!$produto) {
-        $conexao->rollBack();
-        header("location: ../pages/movimentacoes.php?status=produto-invalido");
-        exit();
-    }
-
     $estoqueAtual = (int) $produto["quantidade"];
 
     if ($tipo === "saida" && $quantidade > $estoqueAtual) {
         $conexao->rollBack();
-        header("location: ../pages/movimentacoes.php?status=estoque-insuficiente");
+        header("location: ../paginas/movimentacoes.php?status=estoque-insuficiente");
         exit();
     }
 
@@ -81,13 +70,13 @@ try {
 
     $conexao->commit();
 
-    header("location: ../pages/movimentacoes.php?status=sucesso");
+    header("location: ../paginas/movimentacoes.php?status=sucesso");
     exit();
 } catch (PDOException $erro) {
     if ($conexao->inTransaction()) {
         $conexao->rollBack();
     }
 
-    header("location: ../pages/movimentacoes.php?status=erro");
+    header("location: ../paginas/movimentacoes.php?status=erro");
     exit();
 }

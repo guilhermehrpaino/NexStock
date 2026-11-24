@@ -1,6 +1,6 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
-    header("location: ../pages/categorias.php");
+    header("location: ../paginas/categorias.php");
     exit();
 }
 
@@ -25,9 +25,9 @@ try {
         ":descricao" => $descricao,
     ]);
 
-    header("location: ../pages/categorias.php?status=sucesso");
+    header("location: ../paginas/categorias.php?status=sucesso");
     exit();
 } catch (PDOException $erro) {
-    header("location: ../pages/categorias.php?status=erro");
+    header("location: ../paginas/categorias.php?status=erro");
     exit();
 }

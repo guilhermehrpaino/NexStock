@@ -8,7 +8,7 @@ $autenticado = !empty($_SESSION['nomeUsuario'])
     && (int) $_SESSION['tempoSessao'] > time();
 
 if ($autenticado) {
-    header('Location: pages/dashboard.php');
+    header('Location: paginas/dashboard.php');
 } else {
     header('Location: login.php');
 }

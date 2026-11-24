@@ -1,6 +1,6 @@
 <?php
 if($_SERVER["REQUEST_METHOD"] != "POST") {
-    header("location: ../pages/usuarios.php");
+    header("location: ../paginas/usuarios.php");
     exit();
 }
 
@@ -9,8 +9,8 @@ require_once("./_sessao.php");
 $nome = filter_input(INPUT_POST, "nome", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $usuario = filter_input(INPUT_POST, "usuario", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $cargo = filter_input(INPUT_POST, "cargo", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-$senha = $_POST["senha"] ?? null;
-$confirmarSenha = $_POST["confirmar_senha"] ?? null;
+$senha = $_POST["senha"];
+$confirmarSenha = $_POST["confirmar_senha"];
 
 
 try {
@@ -43,14 +43,14 @@ try {
     ));
 
     if($comandoSQL->rowCount() > 0) {
-        header("location: ../pages/usuarios.php?status=sucesso");
+        header("location: ../paginas/usuarios.php?status=sucesso");
         exit();
     } else {
         echo("Entre em contato com o suporte!");
     }
 } catch(PDOException $erro) {
     if (($erro->errorInfo[1] ?? null) == 1062) {
-        header("location: ../pages/usuarios.php?status=duplicado");
+        header("location: ../paginas/usuarios.php?status=duplicado");
         exit();
     }
 

@@ -23,7 +23,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["usuario_cargo"] = $dados["cargo"];
                 $_SESSION["tempoSessao"] = time() + 60;
 
-                header("location: ../pages/dashboard.php");
+                header("location: ../paginas/dashboard.php");
                 exit();
             } else {
                 header("location: ../login.php");
